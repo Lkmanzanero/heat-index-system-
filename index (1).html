@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1830">
+<title>Weather &amp; Heat Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a1830;--navy:#102446;--navy-line:#1c3563;--ink:#0a1830;--cyan:#33c9d1;--cyan-deep:#149b9b;--cyan-soft:#c9f5f5;--muted:#9db4dd;--text:#e8f0ff;
+--head:"Poppins","Segoe UI",Arial,sans-serif;--mono:"Poppins","Segoe UI",Arial,sans-serif;--sans:"Poppins","Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;min-height:100vh;color:#fff;font:16px/1.6 var(--sans);
+ background:radial-gradient(900px 420px at 85% -10%,rgba(51,201,209,.16),transparent 60%),radial-gradient(700px 380px at 0% 100%,rgba(37,99,235,.16),transparent 60%),var(--bg);background-attachment:fixed}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+.eyebrow{font:700 .78rem/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:8px}
+h1,h2,h3{font-family:var(--head);margin:0}
+.btn{font:600 .9rem var(--sans);border-radius:999px;padding:9px 20px;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:transform .15s ease,background .15s ease,color .15s ease}
+.btn:active{transform:scale(.97)}
+.btn.teal{background:var(--cyan);color:var(--ink)}
+.btn.teal:hover{background:#5fdce2}
+.btn.out{background:transparent;color:var(--cyan);border-color:var(--cyan)}
+.btn.out:hover{background:rgba(51,201,209,.12)}
+.btn.sm{padding:7px 14px;font-size:.8rem}
+
+/* nav */
+nav{position:sticky;top:0;z-index:20;background:rgba(10,24,48,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--navy-line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{display:flex;align-items:center;gap:10px;color:#fff;font:800 1.05rem var(--head);text-decoration:none}
+.links{display:flex;gap:22px;align-items:center}
+.links a.l{color:var(--muted);font-size:.82rem;text-decoration:none}
+.links a.l:hover{color:#fff}
+
+/* hero */
+.hero{color:#fff;padding:56px 0 48px;overflow:hidden}
+
+.hero h1{font-size:clamp(2.4rem,6vw,4rem);line-height:1.05;margin:16px 0 14px;letter-spacing:.01em;font-weight:900}
+.hero h2{font-size:clamp(1.05rem,2.4vw,1.4rem);color:var(--cyan);font-weight:600;line-height:1.3;margin-bottom:14px}
+.hero p.lead{color:#dbe6fb;max-width:520px;margin:0 0 24px;font-size:.98rem}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.stamp{margin-top:14px;font:400 .72rem var(--sans);color:var(--muted)}
+.stats{display:flex;gap:34px;flex-wrap:wrap;margin-top:38px}
+.stats b{display:block;font:800 1.9rem/1.1 var(--head)}
+.stats span{font:600 .64rem var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* sections */
+section.s{padding:56px 0}
+section.soft{background:rgba(16,36,70,.45);border-top:1px solid var(--navy-line);border-bottom:1px solid var(--navy-line)}
+.s h2.t{font-size:clamp(1.4rem,3vw,2rem);line-height:1.15;margin:14px 0 10px;font-weight:800;color:#fff;max-width:520px}
+.s p.sub{color:var(--muted);max-width:520px;margin:0 0 28px;font-size:.92rem}
+.card{background:var(--navy);border:1px solid var(--navy-line);border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:transform .2s ease,border-color .2s ease}
+.chip:hover,.lv:hover{transform:translateY(-4px);border-color:var(--cyan-deep)}
+.scroll{overflow-x:auto;padding:4px 4px 14px;margin:0 -4px}
+.hours{display:flex;gap:12px;min-width:max-content}
+.chip{width:108px;padding:14px 10px;text-align:center}
+.chip .tm{font:600 .68rem var(--sans);color:var(--muted);letter-spacing:.06em}
+.chip .e{font-size:1.7rem;margin:4px 0}
+.chip b{display:block;font:800 1.15rem var(--head);color:#fff}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font:700 .72rem var(--sans);color:#fff;margin-top:8px}
+.chip .m{font:400 .68rem var(--sans);color:var(--muted);margin-top:6px}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.checks li{display:flex;gap:10px;font-size:.92rem;color:var(--text)}
+.checks li::before{content:"✓";flex:none;width:20px;height:20px;border-radius:50%;border:1px solid var(--cyan);color:var(--cyan);display:grid;place-items:center;font-size:.7rem;margin-top:2px}
+.status{padding:24px;position:relative;overflow:hidden}
+.status::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--cyan-soft),var(--cyan),var(--cyan-soft))}
+.st-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.mono{font:600 .68rem var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.lvl{display:inline-flex;align-items:center;gap:7px;padding:4px 12px;border-radius:99px;font:700 .72rem var(--sans);letter-spacing:.06em;color:var(--text);background:rgba(255,255,255,.08);border:1px solid var(--navy-line)}
+.lvl i{width:9px;height:9px;border-radius:50%;background:var(--lc,#ea580c);box-shadow:0 0 0 3px rgba(255,255,255,.12)}
+.status h3{font-size:1.9rem;margin:14px 0 6px;font-weight:800;color:#fff}
+.status p{margin:0 0 14px;color:var(--muted);font-size:.92rem}
+.status .foot{font:400 .7rem var(--sans);color:var(--muted);border-top:1px solid var(--navy-line);padding-top:10px}
+
+.pad{padding:18px}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+select{flex:1;min-width:200px;padding:10px 12px;border:1px solid var(--navy-line);border-radius:12px;background:var(--navy);color:var(--text);font:inherit;outline:0}
+select:focus{border-color:var(--cyan)}
+input[type=range]{flex:1;min-width:160px;accent-color:var(--cyan)}
+.note{color:var(--muted);font-size:.8rem;margin:10px 0 0}
+.mini{display:grid;gap:14px;margin-top:20px}
+
+.day{display:grid;grid-template-columns:86px 34px 1fr auto;gap:12px;align-items:center;padding:12px 4px;border-top:1px solid var(--navy-line)}
+.day:first-child{border-top:0}
+.dn{font:700 .95rem var(--head)}
+.dn small{display:block;font:400 .68rem var(--sans);color:var(--muted)}
+.rng{display:flex;align-items:center;gap:10px;font:600 .85rem var(--sans)}
+.trk{flex:1;height:8px;border-radius:99px;background:var(--navy-line);position:relative;min-width:50px}
+.fill{position:absolute;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,#33c9d1,#3b82f6)}
+.dh{text-align:right;font:400 .72rem var(--sans);color:var(--muted)}
+.dh b{display:inline-block;padding:2px 9px;border-radius:99px;color:#fff;font:700 .72rem var(--sans);margin-left:6px}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-top:22px}
+.lv{padding:16px}
+.lv .ic{width:34px;height:34px;border-radius:10px;margin-bottom:10px}
+.lv b{display:block;font:700 .95rem var(--head);color:#fff}
+.lv span{display:block;font:600 .68rem var(--sans);color:var(--cyan);margin:2px 0 6px}
+.lv p{margin:0;font-size:.8rem;color:var(--muted);line-height:1.45}
+
+[hidden]{display:none!important}
+@media (max-width:820px){.split{grid-template-columns:1fr}.links a.l{display:none}nav .wrap{justify-content:space-between}}
+@media (max-width:520px){.day{grid-template-columns:70px 28px 1fr}.dh{grid-column:1/-1;text-align:left}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" href="#top">Heat Index</a>
+  <div class="links">
+    <a class="l" href="#hourly">Hourly</a>
+    <a class="l" href="#status">Heat status</a>
+    <a class="l" href="#daily">Forecast</a>
+    <button class="btn teal sm loc">📍 Use my location</button>
+  </div>
+</div></nav>
+
+<header class="hero" id="top"><div class="wrap">
+  <div>
+    <div class="eyebrow">Live weather &amp; heat monitoring</div>
+    <h1 id="place">Locating…</h1>
+    <h2 id="heroSub">Reading the current conditions</h2>
+    <p class="lead" id="heroP">Fetching the latest temperature, humidity, and heat index for your area.</p>
+    <div class="cta">
+      <button class="btn teal loc">📍 Use my location</button>
+      <button class="btn out" id="refBtn">↻ Refresh</button>
+    </div>
+    <div class="stamp" id="stamp"></div>
+    <div class="stats">
+      <div><b id="now">--</b><span>Temperature</span></div>
+      <div><b id="sHigh">--</b><span>Today’s high</span></div>
+      <div><b id="sLow">--</b><span>Today’s low</span></div>
+      <div><b id="sRain">--</b><span>Chance of rain</span></div>
+    </div>
+  </div>
+</div></header>
+
+<section class="s" id="hourly"><div class="wrap">
+  <div class="eyebrow">Next 24 hours</div>
+  <h2 class="t">Hour by hour heat outlook</h2>
+  <p class="sub">Forecast points are 3 hours apart. The colored badge is the heat index in °C.</p>
+  <div class="scroll"><div class="hours" id="hours"></div></div>
+</div></section>
+
+<section class="s soft" id="status"><div class="wrap">
+  <div class="split">
+    <div>
+      <div class="eyebrow">Real-time transparency</div>
+      <h2 class="t">Every reading shows its source and timestamp</h2>
+      <p class="sub">Weather data comes from OpenWeatherMap. The heat index is calculated from the live temperature and humidity, so residents know exactly what they’re looking at.</p>
+      <ul class="checks">
+        <li>Source and “Last Updated” shown on the status card</li>
+        <li>Heat index levels follow PAGASA’s categories</li>
+        <li>Offline mode shows the last known snapshot with manual humidity</li>
+      </ul>
+    </div>
+    <div class="card status">
+      <div class="st-top"><span class="mono" id="stPlace">Heat status</span><span class="lvl"><i id="stDot"></i><span id="stBadge">--</span></span></div>
+      <h3 id="stLevel">--</h3>
+      <p id="stTip"></p>
+      <div class="foot" id="stFoot"></div>
+    </div>
+  </div>
+
+  <div class="mini">
+    <div class="card pad" id="brgyCard" hidden>
+      <div class="eyebrow" style="margin-bottom:10px">Barangay · Tanauan City</div>
+      <div class="row"><select id="brgy" aria-label="Choose a barangay"></select></div>
+      <p class="note">The forecast covers all of Tanauan City (48 barangays), so the data is the same for each one. Only the name you pick changes.</p>
+    </div>
+    <div class="card pad" id="rhCard" hidden>
+      <div class="eyebrow" style="margin-bottom:10px">Humidity · manual</div>
+      <div class="row"><input type="range" id="rh" min="30" max="100" value="70" aria-label="Humidity"><b id="rhv">70%</b></div>
+      <p class="note">Couldn’t get live data, so a snapshot is used and you set the humidity. The heat index follows this value.</p>
+    </div>
+  </div>
+</div></section>
+
+<section class="s" id="daily"><div class="wrap">
+  <div class="eyebrow">Upcoming days</div>
+  <h2 class="t">Next days at a glance</h2>
+  <p class="sub">Temperature range, rain chance, humidity, and the highest heat index expected each day.</p>
+  <div class="card pad" id="days"></div>
+  <div class="levels" id="levels"></div>
+</div></section>
+
+
+<script>
+var KEY="7b0e12915e2106bd0765177527893ca6"; // OpenWeatherMap API key
+var DEF={lat:14.0856,lon:121.1494,name:"Tanauan, Batangas"}; // used if location is unavailable
+
+var LV=[
+ {min:-99,name:"Comfortable",c:"#0ea5e9",tip:"Comfortable conditions. Enjoy the day."},
+ {min:27,name:"Caution",c:"#16a34a",tip:"Fatigue is possible with prolonged exposure. Keep water with you."},
+ {min:33,name:"Extreme caution",c:"#d97706",tip:"Heat cramps and exhaustion are possible. Limit strenuous activity and drink plenty of water."},
+ {min:42,name:"Danger",c:"#ea580c",tip:"Heat exhaustion is likely and heat stroke is possible. Avoid being outdoors around midday."},
+ {min:52,name:"Extreme danger",c:"#dc2626",tip:"Heat stroke is imminent. Stay indoors and keep cool."}
+];
+function lvi(c){var r=0;LV.forEach(function(l,i){if(c>=l.min)r=i});return r}
+function F(c){return c*9/5+32}
+function C(f){return (f-32)*5/9}
+function f0(x){return Math.round(x)}
+function f1(x){return Math.round(x*10)/10}
+function hi(tc,rh){ // Rothfusz heat index, in and out in °C
+  var t=F(tc),s=0.5*(t+61+(t-68)*1.2+rh*0.094);
+  if((s+t)/2<80) return C(Math.max(t,s));
+  var h=-42.379+2.04901523*t+10.14333127*rh-0.22475541*t*rh-0.00683783*t*t-0.05481717*rh*rh+0.00122874*t*t*rh+0.00085282*t*rh*rh-0.00000199*t*t*rh*rh;
+  if(rh<13&&t>=80&&t<=112)h-=((13-rh)/4)*Math.sqrt((17-Math.abs(t-95))/17);
+  if(rh>85&&t>=80&&t<=87)h+=((rh-85)/10)*((87-t)/5);
+  return C(h);
+}
+function emoji(code){
+  var k=(code||"01d").slice(0,2),n=(code||"").slice(2)==="n";
+  return {"01":n?"🌙":"☀️","02":n?"☁️":"⛅","03":"☁️","04":"☁️","09":"🌧️","10":"🌦️","11":"⛈️","13":"❄️","50":"🌫️"}[k]||"🌤️";
+}
+function hrLabel(h){return (h%12||12)+(h<12?" AM":" PM")}
+function dayName(d,i){
+  var dt=new Date(d+"T00:00:00"),md=dt.toLocaleDateString("en-PH",{month:"short",day:"numeric"});
+  return {a:i===0?"Today":dt.toLocaleDateString("en-PH",{weekday:"short"}),b:md};
+}
+function $(id){return document.getElementById(id)}
+
+// Fallback snapshot for Tanauan (20 Oct 2026, °F): [date, high, low, rain%]
+var SNAP={nowF:90.5,cond:"Mostly sunny",days:[
+["2026-10-20",91.0,75.9,35],["2026-10-21",91.0,77.7,15],["2026-10-22",90.3,78.0,20],["2026-10-23",89.2,75.1,15],
+["2026-10-24",89.2,73.3,10],["2026-10-25",89.9,74.2,15],["2026-10-26",89.8,75.5,15],["2026-10-27",88.0,76.0,45]]};
+
+var M=null,place=DEF.name,brgyName="",note="",last=null,src="";
+
+function fromLive(n,f){
+  var tz=(f.city&&f.city.timezone)||28800;
+  function ymd(dt){return new Date((dt+tz)*1000).toISOString().slice(0,10)}
+  function hr(dt){return new Date((dt+tz)*1000).getUTCHours()}
+  var hours=f.list.slice(0,8).map(function(x){return {h:hr(x.dt),t:x.main.temp,rh:x.main.humidity,e:emoji(x.weather[0].icon)}});
+  var g={},order=[];
+  f.list.forEach(function(x){var d=ymd(x.dt);if(!g[d]){g[d]=[];order.push(d)}g[d].push(x)});
+  var days=order.map(function(d){
+    var L=g[d],mid=L.reduce(function(a,x){return Math.abs(hr(x.dt)-13)<Math.abs(hr(a.dt)-13)?x:a},L[0]);
+    return {d:d,e:emoji(mid.weather[0].icon),
+      hi:Math.max.apply(null,L.map(function(x){return x.main.temp_max})),
+      lo:Math.min.apply(null,L.map(function(x){return x.main.temp_min})),
+      rain:f0(100*Math.max.apply(null,L.map(function(x){return x.pop||0}))),
+      rh:f0(L.reduce(function(a,x){return a+x.main.humidity},0)/L.length),
+      maxHI:Math.max.apply(null,L.map(function(x){return hi(x.main.temp,x.main.humidity)}))};
+  });
+  days[0].hi=Math.max(days[0].hi,n.main.temp);
+  days[0].lo=Math.min(days[0].lo,n.main.temp);
+  var c=(n.weather&&n.weather[0]&&n.weather[0].description)||"";
+  return {nowT:n.main.temp,nowRH:n.main.humidity,cond:c.charAt(0).toUpperCase()+c.slice(1),
+    icon:emoji(n.weather&&n.weather[0]&&n.weather[0].icon),wind:n.wind?n.wind.speed*3.6:null,hours:hours,days:days};
+}
+function fromSnap(rh){
+  var d0=SNAP.days,h0=new Date().getHours(),hours=[];
+  function tAt(day,hr){var d=d0[Math.min(day,d0.length-1)],m=(d[1]+d[2])/2,a=(d[1]-d[2])/2;return C(m+a*Math.cos(2*Math.PI*(hr-14)/24))}
+  for(var i=0;i<24;i+=3){var hr=(h0+i)%24;hours.push({h:hr,t:tAt(h0+i>=24?1:0,hr),rh:rh,e:(hr>=6&&hr<18)?"☀️":"🌙"})}
+  var days=d0.map(function(d){return {d:d[0],e:"☀️",hi:C(d[1]),lo:C(d[2]),rain:d[3],rh:rh,maxHI:hi(C(d[1]),rh)}});
+  return {nowT:C(SNAP.nowF),nowRH:rh,cond:SNAP.cond,icon:"☀️",wind:null,hours:hours,days:days};
+}
+
+function fullPlace(){return brgyName?(/^Poblacion/.test(brgyName)?"":"Brgy. ")+brgyName+", "+place:place}
+function render(){
+  var h=hi(M.nowT,M.nowRH),i=lvi(h),L=LV[i],d0=M.days[0];
+  $("place").textContent=fullPlace();
+  $("heroSub").textContent="Heat index "+f1(h)+"°C · "+L.name;
+  $("heroP").textContent=M.icon+" "+(M.cond?M.cond+". ":"")+L.tip;
+  $("now").textContent=f1(M.nowT)+"°C";
+  $("sHigh").textContent=f1(d0.hi)+"°C";
+  $("sLow").textContent=f1(d0.lo)+"°C";
+  $("sRain").textContent=d0.rain+"%";
+  $("stPlace").textContent="Heat index — "+fullPlace();
+  $("stBadge").textContent=i===0?"NORMAL":"LEVEL "+i;
+  $("stDot").style.background=L.c;
+  $("stLevel").textContent=L.name;
+  $("stTip").textContent="Currently "+f1(h)+"°C heat index at "+f1(M.nowT)+"°C air temperature and "+f0(M.nowRH)+"% humidity. "+L.tip;
+  $("stFoot").textContent="Last Updated: "+new Date().toLocaleString("en-PH",{dateStyle:"medium",timeStyle:"short"})+" · Source: "+src;
+  $("hours").innerHTML=M.hours.map(function(x){
+    var v=hi(x.t,x.rh),l=LV[lvi(v)];
+    return '<div class="card chip"><div class="tm">'+hrLabel(x.h)+'</div><div class="e">'+x.e+'</div><b>'+f0(x.t)+'°C</b><span class="pill" style="background:'+l.c+'">HI '+f0(v)+'°</span><div class="m">💧 '+f0(x.rh)+'%</div></div>';
+  }).join("");
+  var gmin=Math.min.apply(null,M.days.map(function(x){return x.lo})),gmax=Math.max.apply(null,M.days.map(function(x){return x.hi})),span=(gmax-gmin)||1;
+  $("days").innerHTML=M.days.map(function(x,k){
+    var n=dayName(x.d,k),l=LV[lvi(x.maxHI)];
+    return '<div class="day"><div class="dn">'+n.a+'<small>'+n.b+'</small></div><div style="font-size:1.5rem">'+x.e+'</div>'+
+      '<div class="rng"><span>'+f0(x.lo)+'°</span><div class="trk"><div class="fill" style="left:'+((x.lo-gmin)/span*100)+'%;width:'+Math.max(6,(x.hi-x.lo)/span*100)+'%"></div></div><span>'+f0(x.hi)+'°</span></div>'+
+      '<div class="dh">☔ '+x.rain+'% · 💧 '+x.rh+'%<b style="background:'+l.c+'">HI '+f0(x.maxHI)+'°</b></div></div>';
+  }).join("");
+}
+function setStamp(t){
+  var tm=new Date().toLocaleTimeString("en-PH",{hour:"numeric",minute:"2-digit"});
+  $("stamp").textContent=(note?note+" ":"")+t+" · "+tm;
+}
+
+// ---------- Location + data ----------
+function load(lat,lon,isDefault){
+  last=[lat,lon,isDefault];
+  var q="lat="+lat+"&lon="+lon+"&units=metric&appid="+KEY;
+  $("rhCard").hidden=true;
+  Promise.all([
+    fetch("https://api.openweathermap.org/data/2.5/weather?"+q),
+    fetch("https://api.openweathermap.org/data/2.5/forecast?"+q),
+    fetch("https://api.openweathermap.org/geo/1.0/reverse?lat="+lat+"&lon="+lon+"&limit=1&appid="+KEY).catch(function(){return null})
+  ]).then(function(rs){
+    if(!rs[0].ok||!rs[1].ok)throw 0;
+    return Promise.all([rs[0].json(),rs[1].json(),rs[2]&&rs[2].ok?rs[2].json():null]);
+  }).then(function(r){
+    M=fromLive(r[0],r[1]);src="OpenWeatherMap";
+    var g=r[2]&&r[2][0];
+    place=g?g.name+(g.state?", "+g.state:""):(r[0].name||"Your location");
+    if(isDefault)place=DEF.name;
+    brgyName="";$("brgy").value="";
+    $("brgyCard").hidden=!/tanauan/i.test(place+" "+(r[0].name||""));
+    setStamp("Live data from OpenWeatherMap");render();
+  }).catch(function(){
+    if(isDefault){useSnapshot()}
+    else{$("place").textContent="Couldn’t load weather";
+      $("heroSub").textContent="Check your connection or API key";
+      $("stamp").textContent="Tap “Use my location” to retry."}
+  });
+}
+function useDefault(msg){note=msg+". Showing Tanauan, Batangas.";load(DEF.lat,DEF.lon,true)}
+function locate(){
+  note="";$("place").textContent="Locating…";$("stamp").textContent="";
+  if(!navigator.geolocation){useDefault("Location isn’t supported here");return}
+  navigator.geolocation.getCurrentPosition(
+    function(p){load(p.coords.latitude,p.coords.longitude,false)},
+    function(e){useDefault(e.code===1?"Location permission was denied":"Couldn’t get your location")},
+    {timeout:8000,maximumAge:600000});
+}
+function useSnapshot(){
+  var rhEl=$("rh");
+  $("rhCard").hidden=false;place=DEF.name;brgyName="";src="OpenWeatherMap snapshot (Oct 20, 2026)";
+  $("stamp").textContent=(note?note+" ":"")+"Offline snapshot (Oct 20, 2026)";
+  function go(){$("rhv").textContent=rhEl.value+"%";M=fromSnap(+rhEl.value);render()}
+  rhEl.oninput=go;go();
+}
+
+// ---------- Barangays (Tanauan City) ----------
+var BRGY=["Altura Bata","Altura Matanda","Altura-South","Ambulong","Bagbag","Bagumbayan","Balele","Banadero","Banjo East","Banjo Laurel","Bilog-bilog","Boot","Cale","Darasa","Gonzales","Hidalgo","Janopol","Janopol Oriental","Laurel","Luyos","Mabini","Malaking Pulo","Maria Paz","Maugat","Montaña","Natatas","Pagaspas","Pantay Bata","Pantay Matanda","Poblacion Barangay 1","Poblacion Barangay 2","Poblacion Barangay 3","Poblacion Barangay 4","Poblacion Barangay 5","Poblacion Barangay 6","Poblacion Barangay 7","Sala","Sambat","San Jose","Santol","Santor","Sulpoc","Suplang","Talaga","Tinurik","Trapiche","Ulango","Wawa"];
+var sel=$("brgy");
+sel.innerHTML='<option value="">Whole Tanauan City</option>'+BRGY.map(function(b){return '<option>'+b+'</option>'}).join("");
+sel.addEventListener("change",function(){brgyName=sel.value;if(M)render()});
+
+// ---------- Heat level cards ----------
+$("levels").innerHTML=LV.map(function(l,i){
+  var rng=i===0?"Below 27°C":LV[i+1]?l.min+"–"+(LV[i+1].min-1)+"°C":"52°C and above";
+  return '<div class="card lv"><div class="ic" style="background:'+l.c+'"></div><b>'+l.name+'</b><span>'+rng+'</span><p>'+l.tip+'</p></div>';
+}).join("");
+
+Array.prototype.forEach.call(document.querySelectorAll(".loc"),function(b){b.addEventListener("click",locate)});
+$("refBtn").addEventListener("click",function(){if(last)load(last[0],last[1],last[2]);else locate()});
+locate();
+</script>
+</body>
+</html>
